@@ -1,0 +1,33 @@
+# Publish the site, source photos, and conversion/deployment tools.
+# Keep local research sessions and editor/browser state out of the repository.
+/*
+!/.gitignore
+!/.nojekyll
+!/README.md
+!/index.html
+!/favicon.svg
+!/styles.css
+!/app.js
+!/works.js
+!/details.js
+!/IMG_*.heic
+!/data/
+/data/*
+!/data/catalog.json
+!/data/photo-map.csv
+!/scripts/
+/scripts/*
+!/scripts/convert-photos.py
+!/scripts/deploy-github-pages.sh
+!/jpg/
+/jpg/*
+!/jpg/IMG_*.jpg
+!/lossless/
+/lossless/*
+!/lossless/IMG_*.png
+!/web/
+/web/*
+!/web/IMG_*.jpg
+!/thumbs/
+/thumbs/*
+!/thumbs/IMG_*.jpg
