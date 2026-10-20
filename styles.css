@@ -25,3 +25,4 @@ dialog{border:0;padding:0;width:100vw;max-width:none;height:100dvh;max-height:no
 .lightbox-nav{top:calc(50% - 22px);width:42px;height:44px;font-size:20px}
 .lightbox-previous{left:14px}.lightbox-next{right:14px}
 @media(max-width:760px){.lightbox-nav{width:34px;height:40px;font-size:16px}.lightbox-previous{left:6px}.lightbox-next{right:6px}}
+.intro-flower svg{display:block;width:1em;height:1em}
