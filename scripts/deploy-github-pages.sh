@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPOSITORY="${1:-pathcosmos/some-orsay-paintings-and-latoureiffel}"
-DESCRIPTION='빛을 따라, 파리 — 오르세 회화 51점과 에펠탑 사진으로 만든 개인 감상 사이트'
+DESCRIPTION='빛을 따라, 파리 — 오르세 회화 53점과 에펠탑 사진으로 만든 개인 감상 사이트'
 
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 [[ "$REPOSITORY" =~ ^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$ ]] || fail '저장소 이름은 owner/name 형식이어야 합니다.'
@@ -16,7 +16,7 @@ python3 - <<'PY'
 import json
 from pathlib import Path
 works = json.loads(Path('data/catalog.json').read_text())
-assert len(works) == 52 and len({w['id'] for w in works}) == 52
+assert len(works) == 54 and len({w['id'] for w in works}) == 54
 paths = [Path(p) for p in (
     '.gitignore', '.nojekyll', 'README.md', 'index.html', 'favicon.svg',
     'styles.css', 'app.js', 'works.js', 'details.js',

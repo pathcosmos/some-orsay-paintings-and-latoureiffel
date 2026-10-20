@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const orsay = WORKS.filter(work => work.group !== '에펠탑');
-const viewer = $('viewer');
+const viewer = $('viewer'), lightbox = $('lightbox');
 let filter = 'all', query = '', current = -1, sequence = WORKS, opener = null, toastTimer, startX = 0, startY = 0, touchStarted = false, pendingBack = false;
 const imagePath = (work, folder = 'web') => `${folder}/${work.id}.${folder === 'lossless' ? 'png' : 'jpg'}`;
 function filteredWorks() {
@@ -44,6 +44,7 @@ function showWork(id, updateURL = true) {
   resetZoom();
   $('viewer-image').src = imagePath(work);
   $('viewer-image').alt = `${work.title} — ${work.artist}, 직접 촬영`;
+  if (lightbox.open) syncLightbox(work);
   $('viewer-title').textContent = work.title;
   $('viewer-artist').textContent = `${work.artist} / ${work.latin}`;
   $('viewer-original').textContent = work.original;
@@ -69,11 +70,22 @@ function showWork(id, updateURL = true) {
     const preload = new Image(); preload.src = imagePath(adjacent);
   }
 }
-function openWork(id, fromURL = false, context = 'all') {
+// 사진을 눌러 여는 전체 화면 모달. 상세 화면 위에 겹쳐 열리며 같은 순서로 넘길 수 있다.
+function syncLightbox(work) {
+  $('lightbox-image').src = imagePath(work);
+  $('lightbox-image').alt = `${work.title} — ${work.artist}, 직접 촬영`;
+}
+function openLightbox() {
+  if (current < 0 || $('viewer-stage').classList.contains('zoomed')) return;
+  syncLightbox(WORKS[current]);
+  lightbox.showModal();
+  $('lightbox-close').focus({preventScroll:true});
+}
+function openWork(id, fromURL = false) {
   if (pendingBack) return;
   if (!viewer.open) {
     opener = document.activeElement;
-    sequence = context === 'gallery' ? filteredWorks() : WORKS;
+    sequence = WORKS;
     if (!fromURL) history.pushState({photoViewer:true},'',`#photo=${id}`);
     viewer.showModal();
   }
@@ -82,6 +94,7 @@ function openWork(id, fromURL = false, context = 'all') {
 }
 function finishClose() {
   if (!viewer.open) return;
+  if (lightbox.open) lightbox.close();
   viewer.close();
   resetZoom();
   document.title = '빛을 따라, 파리 — Orsay & Eiffel';
@@ -106,7 +119,7 @@ function handleHash() {
 }
 document.addEventListener('click', event => {
   const button = event.target.closest('[data-open]');
-  if (button) openWork(button.dataset.open,false,button.closest('#gallery') ? 'gallery' : 'all');
+  if (button) openWork(button.dataset.open);
 });
 document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click',()=>{
   filter = button.dataset.filter;
@@ -120,6 +133,10 @@ document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListen
   document.querySelectorAll('[data-layout]').forEach(item=>{item.classList.toggle('active',item===button);item.setAttribute('aria-pressed',String(item===button));});
 }));
 $('close-viewer').addEventListener('click',closeWork);
+$('viewer-image').addEventListener('click',openLightbox);
+$('viewer-image').addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox();}});
+lightbox.addEventListener('click',event=>{if(!event.target.closest('.lightbox-nav'))lightbox.close();});
+$('lightbox-previous').addEventListener('click',()=>step(-1));$('lightbox-next').addEventListener('click',()=>step(1));
 viewer.addEventListener('cancel', event=>{event.preventDefault();closeWork();});
 $('previous').addEventListener('click',()=>step(-1));$('next').addEventListener('click',()=>step(1));
 document.addEventListener('keydown',event=>{
