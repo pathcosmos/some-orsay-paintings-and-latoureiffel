@@ -276,20 +276,8 @@
     "look": "하늘의 사선 붓질과 물의 가로 붓질이 어떻게 다른지 보세요. 같은 푸른색 계열이지만 붓이 움직이는 방향이 하늘과 물을 구별해 줍니다."
   },
   {
-    "source": "https://www.musee-orsay.fr/fr/oeuvres/essai-de-figure-en-plein-air-femme-lombrelle-tournee-vers-la-gauche-1182",
-    "id": "IMG_1316",
-    "title": "양산을 든 여인, 왼쪽을 향하여",
-    "original": "Essai de figure en plein-air : Femme à l’ombrelle tournée vers la gauche",
-    "artist": "클로드 모네",
-    "latin": "Claude Monet",
-    "year": "1886",
-    "group": "인상주의",
-    "description": "언덕 위 여인의 얼굴은 구체적인 표정보다 빛과 그늘로 나타납니다. 모네는 야외 인물을 풍경과 같은 빛의 조건 안에 놓았습니다. 초록 양산과 하늘, 드레스가 바람 속에서 하나의 장면이 됩니다.",
-    "look": "바로 다음 사진의 반대 방향 인물과 비교해 보세요. 같은 양산과 옷도 빛을 받는 면에 따라 다른 색을 냅니다."
-  },
-  {
     "source": "https://www.musee-orsay.fr/fr/oeuvres/essai-de-figure-en-plein-air-femme-lombrelle-tournee-vers-la-droite-1183",
-    "id": "IMG_1317",
+    "id": "IMG_1316",
     "title": "양산을 든 여인, 오른쪽을 향하여",
     "original": "Essai de figure en plein-air : Femme à l’ombrelle tournée vers la droite",
     "artist": "클로드 모네",
@@ -297,6 +285,18 @@
     "year": "1886",
     "group": "인상주의",
     "description": "양산을 든 인물이 하늘을 배경으로 서 있습니다. 인물의 윤곽은 또렷하게 닫히기보다 주변의 구름과 풀빛에 스며듭니다. 모네에게 야외의 인물은 초상의 대상이면서 동시에 빛을 받는 풍경이었습니다.",
+    "look": "바로 다음 사진의 반대 방향 인물과 비교해 보세요. 같은 양산과 옷도 빛을 받는 면에 따라 다른 색을 냅니다."
+  },
+  {
+    "source": "https://www.musee-orsay.fr/fr/oeuvres/essai-de-figure-en-plein-air-femme-lombrelle-tournee-vers-la-gauche-1182",
+    "id": "IMG_1317",
+    "title": "양산을 든 여인, 왼쪽을 향하여",
+    "original": "Essai de figure en plein-air : Femme à l’ombrelle tournée vers la gauche",
+    "artist": "클로드 모네",
+    "latin": "Claude Monet",
+    "year": "1886",
+    "group": "인상주의",
+    "description": "언덕 위 여인의 얼굴은 구체적인 표정보다 빛과 그늘로 나타납니다. 모네는 야외 인물을 풍경과 같은 빛의 조건 안에 놓았습니다. 초록 양산과 하늘, 드레스가 바람 속에서 하나의 장면이 됩니다.",
     "look": "양산 아래의 얼굴과 햇빛을 받은 드레스 아래쪽을 비교해 보세요. 그림자에도 푸른색과 분홍색이 섞여 있습니다."
   },
   {
@@ -420,16 +420,16 @@
     "look": "나무의 가장 어두운 부분을 확대해 보세요. 검정처럼 보였던 곳에도 다양한 색이 놓여 있고, 그 사이로 밝은 바탕이 드러납니다."
   },
   {
-    "source": "https://www.musee-orsay.fr/fr/oeuvres/thadee-caroline-jacquet-3046",
+    "source": "https://www.musee-orsay.fr/fr/oeuvres/baronne-robert-de-domecy-69343",
     "id": "IMG_1329",
-    "title": "타데 카롤린 자케",
-    "original": "Thadée-Caroline Jacquet",
-    "artist": "에드몽 아망 장",
-    "latin": "Edmond Aman-Jean",
-    "year": "1892년경",
+    "title": "로베르 드 도메시 남작부인",
+    "original": "Baronne Robert de Domecy",
+    "artist": "오딜롱 르동",
+    "latin": "Odilon Redon",
+    "year": "1900",
     "group": "다른 시선",
-    "description": "검은 옷 안의 붉은 블라우스가 인물의 얼굴 아래에서 작은 중심을 만듭니다. 화가의 배우자가 되는 타데 카롤린 자케의 초상입니다. 배경의 흐릿한 빛과 꽃은 인물의 단단한 윤곽과 다르게 처리되어 차분한 분위기를 만듭니다.",
-    "look": "붉은 옷에서 얼굴로, 다시 밝은 배경으로 시선을 옮겨보세요. 화가가 대비를 이용해 시선이 머무는 순서를 만든 방식이 보입니다."
+    "description": "어두운 옷을 입은 여인이 화면 오른쪽에 앉아 옆을 바라봅니다. 르동이 친구 도메시 남작의 부인을 그린 보기 드문 유화 초상으로, 화면의 절반 이상을 푸른빛과 흰빛이 아른거리는 구름 같은 배경에 내주었습니다.",
+    "look": "붉은 스카프에서 창백한 얼굴로, 다시 왼쪽의 빛 무리로 시선을 옮겨보세요. 짙은 실루엣과 반짝이는 배경의 대비가 인물을 현실이 아닌 사색의 공간에 놓습니다."
   },
   {
     "source": "https://www.musee-orsay.fr/fr/oeuvres/la-charmeuse-de-serpents-9090",
