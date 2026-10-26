@@ -46,7 +46,8 @@ HEIC 원본 54장과 JPG·PNG·웹용·썸네일 변환본을 모두 공개합�
 - `lossless/`: 원본 해상도의 PNG 54장. 디코딩한 RGB 픽셀을 추가 손실 압축 없이 보관
 - `jpg/`: 원본 해상도, JPEG 품질 100으로 저장한 54장
 - `web/`: 긴 변 최대 2000px, JPEG 품질 83
-- `thumbs/`: 긴 변 최대 600px, JPEG 품질 75
+- `thumbs/`: 긴 변 최대 600px, JPEG 품질 75. 목록의 JPG 대체 이미지
+- `responsive/`: 너비 160·320·480·800·1200px, WebP 품질 78. 목록·첫 화면·에펠탑 사진은 화면 크기와 픽셀 밀도에 따라 선택하며, 상세 미리보기 띠는 160px 사용
 - `data/photo-map.csv`: 원본과 변환본, 작품 정보, 참고 자료의 대응표
 - `data/catalog.json`: 작품 정보의 JSON 사본
 - `details.js`: 작품별 상세 정보(원제, 제작, 재료, 크기, 소장번호, 취득, 전시실, 해설, 출처). 오르세 공식 소장품 기록 기준
@@ -57,7 +58,7 @@ HEIC 원본 54장과 JPG·PNG·웹용·썸네일 변환본을 모두 공개합�
 
 ### 다시 변환하기
 
-macOS `sips`와 FFmpeg가 필요합니다. 기본 Apple HEIC 디코더가 검은 이미지를 출력하는 현상이 있어, FFmpeg로 먼저 PNG를 디코딩합니다.
+macOS `sips`, FFmpeg, `cwebp`가 필요합니다. 기본 Apple HEIC 디코더가 검은 이미지를 출력하는 현상이 있어, FFmpeg로 먼저 PNG를 디코딩합니다.
 
 ```sh
 python3 scripts/convert-photos.py
@@ -68,6 +69,14 @@ python3 scripts/convert-photos.py
 ```sh
 python3 scripts/convert-photos.py --reuse-png
 ```
+
+기존 PNG에서 반응형 WebP만 생성하려면:
+
+```sh
+python3 scripts/responsive-photos.py
+```
+
+반응형 이미지는 원본 PNG를 sRGB로 변환한 뒤 생성합니다. 너비는 파일명의 숫자와 같으며, 현재 생성기는 1200px보다 작은 원본이 들어오면 오류를 알립니다. 목록의 지연 로딩을 유지하고, 갤러리·해설 보기 전환 시 `sizes`를 갱신합니다. 상세 화면과 확대 보기에는 기존 `web/` 이미지를 사용하며, 앞뒤 큰 사진 선로딩은 PC에서만 수행합니다(데이터 절약 모드·2G 연결 제외).
 
 ## 작품 정보와 확인 범위
 
@@ -127,4 +136,4 @@ python3 scripts/convert-photos.py --reuse-png
 
 JavaScript 구문, 카탈로그 항목과 파일 연결, 원본 대비 변환 해상도 및 프로필을 검사했습니다. 이번 환경에서는 브라우저가 연결되지 않았고 로컬 서버 바인딩도 권한 제한으로 차단되어 실제 PC·모바일 화면과 터치 동작은 검증하지 못했습니다.
 
-아직 호스팅 서비스에 게시하지 않았습니다. 정적 호스팅에 올릴 경우 index.html, styles.css, app.js, works.js, details.js, favicon.svg, web/, thumbs/가 필요합니다. 상세 화면의 원본 다운로드를 제공하려면 jpg/, lossless/도 함께 올리세요. PNG와 원본 크기 JPG는 합계가 크므로 호스팅 용량 제한을 확인하세요.
+정적 호스팅에 올릴 경우 index.html, styles.css, app.js, works.js, details.js, favicon.svg, web/, thumbs/, responsive/가 필요합니다. 상세 화면의 원본 다운로드를 제공하려면 jpg/, lossless/도 함께 올리세요. PNG와 원본 크기 JPG는 합계가 크므로 호스팅 용량 제한을 확인하세요.

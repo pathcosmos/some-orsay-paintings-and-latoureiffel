@@ -18,6 +18,7 @@
 !/scripts/
 /scripts/*
 !/scripts/convert-photos.py
+!/scripts/responsive-photos.py
 !/scripts/deploy-github-pages.sh
 !/jpg/
 /jpg/*
@@ -31,3 +32,6 @@
 !/thumbs/
 /thumbs/*
 !/thumbs/IMG_*.jpg
+!/responsive/
+/responsive/*
+!/responsive/IMG_*.webp

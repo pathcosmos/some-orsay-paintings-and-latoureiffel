@@ -5,18 +5,27 @@ const orsay = WORKS.filter(work => work.group !== '에펠탑');
 const viewer = $('viewer'), lightbox = $('lightbox');
 let filter = 'all', query = '', current = -1, sequence = WORKS, opener = null, toastTimer, startX = 0, startY = 0, touchStarted = false, pendingBack = false;
 const imagePath = (work, folder = 'web') => `${folder}/${work.id}.${folder === 'lossless' ? 'png' : 'jpg'}`;
+const responsiveSet = work => [320,480,800,1200].map(width => `responsive/${work.id}-${width}.webp ${width}w`).join(', ');
+function gallerySizes() {
+  return $('gallery').classList.contains('reading')
+    ? '(max-width: 760px) calc((100vw - 55px) * .4444 - 24px), (max-width: 1100px) calc((100vw - 84px) / 2 - 24px), min(300px, calc((100vw - 180px) / 4 - 24px))'
+    : '(max-width: 380px) calc((100vw - 90px) / 2), (max-width: 760px) calc((100vw - 102px) / 2), (max-width: 1100px) calc((100vw - 104px) / 3 - 44px), min(388px, calc((100vw - 168px) / 3 - 44px))';
+}
+function galleryImage(work) {
+  return `<picture><source type="image/webp" srcset="${responsiveSet(work)}" sizes="${gallerySizes()}"><img src="${imagePath(work,'thumbs')}" alt="${escapeHTML(work.title)} — ${escapeHTML(work.artist)} 현장 촬영" width="600" height="600" loading="lazy" decoding="async"></picture>`;
+}
 function filteredWorks() {
   const term = query.trim().normalize('NFC').toLocaleLowerCase();
   return orsay.filter(work => (filter === 'all' || work.group === filter) && `${work.title} ${work.artist} ${work.latin} ${work.original} ${work.year}`.normalize('NFC').toLocaleLowerCase().includes(term));
 }
 function renderGallery() {
   const visible = filteredWorks();
-  $('gallery').innerHTML = visible.map(work => `<article class="art-card"><button class="art-open" data-open="${work.id}" aria-label="${escapeHTML(work.title)} 상세 보기"><span class="art-frame"><img src="${imagePath(work,'thumbs')}" alt="${escapeHTML(work.title)} — ${escapeHTML(work.artist)} 현장 촬영" width="600" height="600" loading="lazy" decoding="async"><span class="open-icon" aria-hidden="true">↗</span></span><div class="art-caption"><span class="artist">${escapeHTML(work.artist)}</span><h3>${escapeHTML(work.title)}</h3><span class="year">${escapeHTML(work.year)}${work.provisional ? ' · 작가·작품명 미확인' : work.attributionUncertain ? ' · 작가 귀속 불확실' : ''}</span></div></button><p class="card-description">${escapeHTML(work.description)}</p></article>`).join('');
+  $('gallery').innerHTML = visible.map(work => `<article class="art-card"><button class="art-open" data-open="${work.id}" aria-label="${escapeHTML(work.title)} 상세 보기"><span class="art-frame">${galleryImage(work)}<span class="open-icon" aria-hidden="true">↗</span></span><div class="art-caption"><span class="artist">${escapeHTML(work.artist)}</span><h3>${escapeHTML(work.title)}</h3><span class="year">${escapeHTML(work.year)}${work.provisional ? ' · 작가·작품명 미확인' : work.attributionUncertain ? ' · 작가 귀속 불확실' : ''}</span></div></button><p class="card-description">${escapeHTML(work.description)}</p></article>`).join('');
   $('result-count').textContent = `회화 ${visible.length}점${visible.length !== orsay.length ? ` / 전체 ${orsay.length}점` : ' · 직접 촬영한 기록'}`;
   $('empty').hidden = visible.length > 0;
 }
 function renderStrip() {
-  $('filmstrip').innerHTML = sequence.map(work => `<button data-open="${work.id}" aria-label="${escapeHTML(work.title)}" ${work.id === WORKS[current].id ? 'class="active" aria-current="true"' : ''}><img src="${imagePath(work,'thumbs')}" alt="" loading="lazy" width="42" height="46"></button>`).join('');
+  $('filmstrip').innerHTML = sequence.map(work => `<button data-open="${work.id}" aria-label="${escapeHTML(work.title)}" ${work.id === WORKS[current].id ? 'class="active" aria-current="true"' : ''}><picture><source type="image/webp" srcset="responsive/${work.id}-160.webp"><img src="${imagePath(work,'thumbs')}" alt="" loading="lazy" width="42" height="46"></picture></button>`).join('');
   $('filmstrip').querySelector('.active')?.scrollIntoView({block:'nearest',inline:'center',behavior:'instant'});
 }
 function resetZoom() {
@@ -65,7 +74,9 @@ function showWork(id, updateURL = true) {
   document.querySelector('.viewer-body').scrollTo(0,0);
   renderStrip();
   if (updateURL) history.replaceState({...history.state,work:id},'',`#photo=${id}`);
-  for (const offset of [-1,1]) {
+  const connection = navigator.connection;
+  const preloadAdjacent = matchMedia('(min-width: 761px)').matches && !connection?.saveData && !/^(slow-)?2g$/.test(connection?.effectiveType || '');
+  for (const offset of preloadAdjacent ? [-1,1] : []) {
     const adjacent = sequence[(position+offset+sequence.length)%sequence.length];
     const preload = new Image(); preload.src = imagePath(adjacent);
   }
@@ -130,6 +141,7 @@ $('search').addEventListener('input', event => {query=event.target.value;renderG
 $('reset-search').addEventListener('click',()=>{query='';$('search').value='';document.querySelector('[data-filter="all"]').click();$('search').focus();});
 document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListener('click',()=>{
   $('gallery').classList.toggle('reading',button.dataset.layout==='reading');
+  $('gallery').querySelectorAll('source').forEach(source => { source.sizes = gallerySizes(); });
   document.querySelectorAll('[data-layout]').forEach(item=>{item.classList.toggle('active',item===button);item.setAttribute('aria-pressed',String(item===button));});
 }));
 $('close-viewer').addEventListener('click',closeWork);

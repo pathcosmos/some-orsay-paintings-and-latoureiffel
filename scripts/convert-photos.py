@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
-"""Decode HEIC without Apple decoder black frames, retain ICC, export three sizes.
-Requires macOS sips and FFmpeg. PNG preserves decoded RGB samples; JPEG is lossy.
+"""Decode HEIC without Apple decoder black frames, retain ICC, export JPEG and responsive WebP variants.
+Requires macOS sips, FFmpeg, and cwebp. PNG preserves decoded RGB samples; JPEG is lossy.
 """
 import argparse
 import json
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 parser = argparse.ArgumentParser()
@@ -48,3 +49,4 @@ with tempfile.TemporaryDirectory(prefix='orsay-') as temp:
         for folder, size, quality in [('web', '2000', '83'), ('thumbs', '600', '75')]:
             run('sips', '-m', '/System/Library/ColorSync/Profiles/sRGB Profile.icc', '-s', 'format', 'jpeg', '-s', 'formatOptions', quality, '-Z', size, str(png), '--out', str(ROOT / folder / f'{stem}.jpg'))
         print(f'{stem}: PNG + full-resolution JPEG + web + thumbnail', flush=True)
+subprocess.run([sys.executable, str(ROOT / 'scripts' / 'responsive-photos.py')], check=True)

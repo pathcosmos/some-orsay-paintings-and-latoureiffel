@@ -21,12 +21,14 @@ paths = [Path(p) for p in (
     '.gitignore', '.nojekyll', 'README.md', 'index.html', 'favicon.svg',
     'styles.css', 'app.js', 'works.js', 'details.js',
     'data/catalog.json', 'data/photo-map.csv',
-    'scripts/convert-photos.py', 'scripts/deploy-github-pages.sh')]
+    'scripts/convert-photos.py', 'scripts/responsive-photos.py', 'scripts/deploy-github-pages.sh')]
 for work in works:
     ident = work['id']
     paths.append(Path(ident + '.heic'))
     for folder, ext in [('jpg', 'jpg'), ('lossless', 'png'), ('web', 'jpg'), ('thumbs', 'jpg')]:
         paths.append(Path(folder) / (ident + '.' + ext))
+    for width in (160, 320, 480, 800, 1200):
+        paths.append(Path('responsive') / f'{ident}-{width}.webp')
 for path in paths:
     assert path.is_file(), f'파일 누락: {path}'
     assert path.stat().st_size < 100 * 1024 * 1024, f'GitHub 개별 파일 크기 초과: {path}'
@@ -54,7 +56,7 @@ esac
 
 git config user.name >/dev/null || git config --local user.name "$LOGIN"
 git config user.email >/dev/null || git config --local user.email "${USER_ID}+${LOGIN}@users.noreply.github.com"
-git add -- .gitignore .nojekyll README.md index.html favicon.svg styles.css app.js works.js details.js data scripts jpg lossless web thumbs IMG_*.heic
+git add -- .gitignore .nojekyll README.md index.html favicon.svg styles.css app.js works.js details.js data scripts jpg lossless web thumbs responsive IMG_*.heic
 if ! git diff --cached --quiet; then
   git commit -m 'Publish Orsay and Eiffel photo collection'
 fi
