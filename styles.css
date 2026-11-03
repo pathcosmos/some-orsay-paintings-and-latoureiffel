@@ -31,3 +31,16 @@ dialog{border:0;padding:0;width:100vw;max-width:none;height:100dvh;max-height:no
 .hero-picture picture,.hero-landmark picture{display:block}
 .art-frame picture{display:block;width:100%;height:100%}
 .eiffel-photo>picture{position:absolute;inset:0;display:block}
+
+/* 회전 후에도 사진 전체가 감상 영역 안에 들어오도록 계산한 크기를 사용한다. */
+#viewer-image{position:absolute;left:50%;top:50%;max-width:none;max-height:none;transform:translate(-50%,-50%) rotate(var(--rotation,0deg));width:var(--image-width,auto);height:var(--image-height,auto)}
+.viewer-stage.zoomed #viewer-image{left:0;top:0;transform:none;max-width:none;max-height:none;width:auto;height:160%;position:relative;margin:0 auto}
+.viewer-stage{touch-action:pan-y pinch-zoom}
+.viewer-stage.zoomed{touch-action:pan-x pan-y pinch-zoom}
+.viewer-top>div{flex-wrap:wrap;justify-content:flex-end}
+#lightbox{touch-action:pan-y pinch-zoom}
+#lightbox-image{transform:rotate(var(--rotation,0deg))}
+[hidden]{display:none!important}
+@media(max-width:760px){.viewer-top{gap:8px}.viewer-top>div{gap:5px}.viewer-top button{padding:6px 9px}}
+@media(max-width:380px){.viewer-top button{padding:5px 7px}.viewer-top>span{white-space:nowrap}}
+@media(orientation:landscape) and (max-height:520px){.viewer-top{padding-top:7px;padding-bottom:7px}}

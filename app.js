@@ -2,8 +2,9 @@
 const $ = id => document.getElementById(id);
 const escapeHTML = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const orsay = WORKS.filter(work => work.group !== '에펠탑');
-const viewer = $('viewer'), lightbox = $('lightbox');
-let filter = 'all', query = '', current = -1, sequence = WORKS, opener = null, toastTimer, startX = 0, startY = 0, touchStarted = false, pendingBack = false;
+const viewer = $('viewer'), lightbox = $('lightbox'), stage = $('viewer-stage');
+let filter = 'all', query = '', current = -1, sequence = WORKS, opener = null, toastTimer, pendingBack = false;
+let rotation = 0, ownsFullscreen = false;
 const imagePath = (work, folder = 'web') => `${folder}/${work.id}.${folder === 'lossless' ? 'png' : 'jpg'}`;
 const responsiveSet = work => [320,480,800,1200].map(width => `responsive/${work.id}-${width}.webp ${width}w`).join(', ');
 function gallerySizes() {
@@ -28,6 +29,18 @@ function renderStrip() {
   $('filmstrip').innerHTML = sequence.map(work => `<button data-open="${work.id}" aria-label="${escapeHTML(work.title)}" ${work.id === WORKS[current].id ? 'class="active" aria-current="true"' : ''}><picture><source type="image/webp" srcset="responsive/${work.id}-160.webp"><img src="${imagePath(work,'thumbs')}" alt="" loading="lazy" width="42" height="46"></picture></button>`).join('');
   $('filmstrip').querySelector('.active')?.scrollIntoView({block:'nearest',inline:'center',behavior:'instant'});
 }
+function fitImage() {
+  const img = $('viewer-image');
+  if (!img.naturalWidth || stage.classList.contains('zoomed')) return;
+  const availableWidth = Math.max(1, stage.clientWidth - 70);
+  const availableHeight = Math.max(1, stage.clientHeight - 40);
+  const quarterTurn = rotation % 180 !== 0;
+  const scale = Math.min(availableWidth/(quarterTurn ? img.naturalHeight : img.naturalWidth), availableHeight/(quarterTurn ? img.naturalWidth : img.naturalHeight));
+  img.style.setProperty('--image-width', `${img.naturalWidth*scale}px`);
+  img.style.setProperty('--image-height', `${img.naturalHeight*scale}px`);
+  img.style.setProperty('--rotation', `${rotation}deg`);
+  if (lightbox.open) fitLightbox();
+}
 function resetZoom() {
   $('viewer-stage').classList.remove('zoomed');
   $('zoom').setAttribute('aria-pressed','false');
@@ -50,9 +63,13 @@ function showWork(id, updateURL = true) {
   current = index;
   const work = WORKS[current];
   if (!sequence.some(item => item.id === id)) sequence = WORKS;
+  rotation = 0;
   resetZoom();
+  $('viewer-image').style.setProperty('--rotation','0deg');
   $('viewer-image').src = imagePath(work);
   $('viewer-image').alt = `${work.title} — ${work.artist}, 직접 촬영`;
+  $('viewer-image').setAttribute('aria-label', `${work.title} 사진 크게 보기`);
+  if ($('viewer-image').complete) fitImage();
   if (lightbox.open) syncLightbox(work);
   $('viewer-title').textContent = work.title;
   $('viewer-artist').textContent = `${work.artist} / ${work.latin}`;
@@ -82,15 +99,33 @@ function showWork(id, updateURL = true) {
   }
 }
 // 사진을 눌러 여는 전체 화면 모달. 상세 화면 위에 겹쳐 열리며 같은 순서로 넘길 수 있다.
+function fitLightbox() {
+  const img = $('lightbox-image');
+  if (!img.naturalWidth) return;
+  const quarterTurn = rotation % 180 !== 0;
+  const scale = Math.min(innerWidth/(quarterTurn ? img.naturalHeight : img.naturalWidth),innerHeight/(quarterTurn ? img.naturalWidth : img.naturalHeight));
+  img.style.width = `${img.naturalWidth*scale}px`;
+  img.style.height = `${img.naturalHeight*scale}px`;
+  img.style.maxWidth = img.style.maxHeight = 'none';
+  img.style.setProperty('--rotation',`${rotation}deg`);
+}
 function syncLightbox(work) {
   $('lightbox-image').src = imagePath(work);
   $('lightbox-image').alt = `${work.title} — ${work.artist}, 직접 촬영`;
+  if ($('lightbox-image').complete) fitLightbox();
 }
 function openLightbox() {
   if (current < 0 || $('viewer-stage').classList.contains('zoomed')) return;
   syncLightbox(WORKS[current]);
   lightbox.showModal();
+  fitLightbox();
   $('lightbox-close').focus({preventScroll:true});
+}
+function rotate() {
+  resetZoom();
+  rotation = (rotation+90)%360;
+  fitImage();
+  toast(`${rotation}도 회전했습니다.`);
 }
 function openWork(id, fromURL = false) {
   if (pendingBack) return;
@@ -109,7 +144,7 @@ function finishClose() {
   viewer.close();
   resetZoom();
   document.title = '빛을 따라, 파리 — Orsay & Eiffel';
-  if (document.fullscreenElement === viewer) document.exitFullscreen().catch(()=>{});
+  if (ownsFullscreen && document.fullscreenElement) document.exitFullscreen().catch(()=>{});
   if (opener?.isConnected) opener.focus({preventScroll:true});
 }
 function closeWork() {
@@ -145,9 +180,14 @@ document.querySelectorAll('[data-layout]').forEach(button=>button.addEventListen
   document.querySelectorAll('[data-layout]').forEach(item=>{item.classList.toggle('active',item===button);item.setAttribute('aria-pressed',String(item===button));});
 }));
 $('close-viewer').addEventListener('click',closeWork);
+$('rotate').addEventListener('click',rotate);
+$('viewer-image').addEventListener('load',fitImage);
 $('viewer-image').addEventListener('click',openLightbox);
 $('viewer-image').addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();openLightbox();}});
+$('lightbox-image').addEventListener('load',fitLightbox);
+$('lightbox-image').addEventListener('error',()=>{lightbox.close();toast('사진을 불러오지 못했습니다. 연결을 확인해 주세요.');});
 lightbox.addEventListener('click',event=>{if(!event.target.closest('.lightbox-nav'))lightbox.close();});
+lightbox.addEventListener('close',()=>{if(viewer.open)$('viewer-image').focus({preventScroll:true});});
 $('lightbox-previous').addEventListener('click',()=>step(-1));$('lightbox-next').addEventListener('click',()=>step(1));
 viewer.addEventListener('cancel', event=>{event.preventDefault();closeWork();});
 $('previous').addEventListener('click',()=>step(-1));$('next').addEventListener('click',()=>step(1));
@@ -155,32 +195,52 @@ document.addEventListener('keydown',event=>{
   if(!viewer.open || /INPUT|TEXTAREA|SELECT/.test(event.target.tagName))return;
   if(event.key==='ArrowLeft'){event.preventDefault();step(-1);}
   if(event.key==='ArrowRight'){event.preventDefault();step(1);}
+  if(event.key.toLowerCase()==='r'){event.preventDefault();rotate();}
 });
 $('zoom').addEventListener('click',()=>{
-  const zoomed=$('viewer-stage').classList.toggle('zoomed');
+  const zoomed=!stage.classList.contains('zoomed');
+  rotation=0;
+  resetZoom();
+  stage.classList.toggle('zoomed',zoomed);
   $('zoom').textContent=zoomed?'축소':'확대';$('zoom').setAttribute('aria-pressed',String(zoomed));
+  if(!zoomed)fitImage();
 });
-if (!viewer.requestFullscreen) $('fullscreen').hidden=true;
+if (!document.documentElement.requestFullscreen || !document.fullscreenEnabled) $('fullscreen').hidden=true;
 $('fullscreen').addEventListener('click',async()=>{
-  try{if(document.fullscreenElement)await document.exitFullscreen();else await viewer.requestFullscreen();}
-  catch {toast('이 브라우저에서는 전체 화면을 사용할 수 없습니다.');}
+  try{
+    if(document.fullscreenElement)await document.exitFullscreen();
+    else{await document.documentElement.requestFullscreen();ownsFullscreen=true;}
+  }
+  catch {toast('이 브라우저에서는 전체 화면을 사용할 수 없습니다. 사진을 눌러 크게 볼 수 있습니다.');}
 });
-document.addEventListener('fullscreenchange',()=>{$('fullscreen').textContent=document.fullscreenElement?'화면 복원':'전체 화면';});
+document.addEventListener('fullscreenchange',()=>{
+  if(!document.fullscreenElement)ownsFullscreen=false;
+  $('fullscreen').textContent=document.fullscreenElement?'화면 복원':'전체 화면';
+  fitImage();
+});
 function toast(message){clearTimeout(toastTimer);$('toast').textContent=message;$('toast').classList.add('visible');toastTimer=setTimeout(()=>$('toast').classList.remove('visible'),2600);}
 $('copy-link').addEventListener('click',async()=>{
   try{await navigator.clipboard.writeText(location.href);toast('사진 링크를 복사했습니다.');}
   catch{toast('주소창의 링크를 복사해 주세요.');}
 });
-$('viewer-stage').addEventListener('touchstart',event=>{
-  touchStarted=event.touches.length===1&&!$('viewer-stage').classList.contains('zoomed');
-  if(touchStarted){startX=event.touches[0].clientX;startY=event.touches[0].clientY;}
-},{passive:true});
-$('viewer-stage').addEventListener('touchend',event=>{
-  if(!touchStarted)return;touchStarted=false;
-  const dx=event.changedTouches[0].clientX-startX,dy=event.changedTouches[0].clientY-startY;
-  if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5)step(dx<0?1:-1);
-},{passive:true});
-$('viewer-stage').addEventListener('touchcancel',()=>{touchStarted=false;},{passive:true});
+// 핀치 확대와 확대된 사진의 스크롤은 사진 넘기기로 처리하지 않는다.
+for (const surface of [stage,lightbox]) {
+  let startX=0,startY=0,tracking=false;
+  surface.addEventListener('touchstart',event=>{
+    tracking=event.touches.length===1&&!stage.classList.contains('zoomed');
+    if(tracking){startX=event.touches[0].clientX;startY=event.touches[0].clientY;}
+  },{passive:true});
+  surface.addEventListener('touchmove',event=>{if(event.touches.length>1)tracking=false;},{passive:true});
+  surface.addEventListener('touchend',event=>{
+    if(!tracking)return;tracking=false;
+    if(window.visualViewport?.scale>1.01)return;
+    const dx=event.changedTouches[0].clientX-startX,dy=event.changedTouches[0].clientY-startY;
+    if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.5)step(dx<0?1:-1);
+  },{passive:true});
+  surface.addEventListener('touchcancel',()=>{tracking=false;},{passive:true});
+}
+new ResizeObserver(()=>{if(viewer.open)fitImage();}).observe(stage);
+window.addEventListener('resize',()=>{if(lightbox.open)fitLightbox();});
 $('viewer-image').addEventListener('error',()=>{toast('사진을 불러오지 못했습니다. 연결을 확인해 주세요.');});
 window.addEventListener('popstate',handleHash);
 window.addEventListener('hashchange',()=>{if(!pendingBack)handleHash();});

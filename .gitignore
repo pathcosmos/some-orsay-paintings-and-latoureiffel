@@ -10,6 +10,9 @@
 !/app.js
 !/works.js
 !/details.js
+!/tests/
+/tests/*
+!/tests/viewer.test.cjs
 !/IMG_*.heic
 !/data/
 /data/*
